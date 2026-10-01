@@ -203,10 +203,13 @@ cd Callbreak_scorecard
 Simply open:
 
 ```text
-CALL.HTML
+index.html  (or CALL.HTML)
 ```
 
 in any modern web browser.
+
+**Live Link (GitHub Pages):**
+[https://umraoprince.github.io/Callbreak_scorecard/](https://umraoprince.github.io/Callbreak_scorecard/)
 
 No server or database is required.
 
