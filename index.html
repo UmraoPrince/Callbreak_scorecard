@@ -748,6 +748,14 @@ function loadDB() {
 
             db = parsed;
 
+            if (typeof db.gameLimit === "undefined") {
+                      db.gameLimit = null;
+                }
+
+            if (typeof db.gameStarted === "undefined") {
+                  db.gameStarted = db.rounds.length > 0;
+                    }
+
         }
 
     } catch(error) {
@@ -890,7 +898,6 @@ function formatScore(score) {
                     CREATE ROUND FORM
 ==============================================================
 */
-
 function createRoundForm() {
 
     const form =
@@ -901,7 +908,7 @@ function createRoundForm() {
     form.innerHTML = "";
 
 
-    for(let i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
 
         const card =
             document.createElement("div");
@@ -966,8 +973,39 @@ function createRoundForm() {
 
     }
 
-}
 
+    // Disable form when game is completed
+    if (
+        db.gameLimit &&
+        db.rounds.length >= db.gameLimit
+    ) {
+
+        for (let i = 0; i < 4; i++) {
+
+            const call =
+                document.getElementById(
+                    `call-${i}`
+                );
+
+            const tricks =
+                document.getElementById(
+                    `tricks-${i}`
+                );
+
+
+            if (call) {
+                call.disabled = true;
+            }
+
+            if (tricks) {
+                tricks.disabled = true;
+            }
+
+        }
+
+    }
+
+}
 
 /*
 ==============================================================
@@ -1051,6 +1089,22 @@ function previewScore(index) {
 
 function addRound() {
 
+    // Game limit check
+    if (db.gameLimit === null || !db.gameStarted) {
+        alert("Please start a new game first.");
+        return;
+    }
+
+    if (db.rounds.length >= db.gameLimit) {
+        alert(
+            `Game completed!\n\n` +
+            `Maximum ${db.gameLimit} rounds are already completed.`
+        );
+
+        showGameComplete();
+        return;
+    }
+    
     const players =
         [];
 
@@ -1162,13 +1216,18 @@ function addRound() {
     };
 
 
-    db.rounds.push(round);
+   db.rounds.push(round);
 
-    saveDB();
+      saveDB();
 
-    clearForm();
+        clearForm();
 
-    render();
+        render();
+
+// Check whether game is completed
+             if (db.rounds.length >= db.gameLimit) {
+                showGameComplete();
+                  }
 
 }
 
@@ -1492,14 +1551,52 @@ function renderLeader() {
         );
 
 
-    if(db.rounds.length === 0) {
+   if(db.rounds.length === 0) {
+
+    if (db.gameLimit) {
+
+        box.innerHTML = `
+
+            <div class="leader-card">
+
+                <div class="leader-icon">
+                    🎮
+                </div>
+
+                <div class="leader-name">
+                    Game Ready
+                </div>
+
+                <div class="leader-meta">
+
+                    Round Limit:
+                    <strong style="color:white">
+                        ${db.gameLimit}
+                    </strong>
+
+                    rounds
+
+                    <br>
+
+                    Start entering scores below.
+
+                </div>
+
+            </div>
+
+            <div style="height:20px"></div>
+
+        `;
+
+    } else {
 
         box.innerHTML = "";
 
-        return;
-
     }
 
+    return;
+
+}
 
     const info =
         getLeaderInfo();
@@ -1885,11 +1982,123 @@ function renderHistory() {
 }
 
 
+
+/*
+==============================================================
+                    SHOW GAME COMPLETE
+==============================================================
+*/
+
+function showGameComplete() {
+
+    const totals = getTotals();
+
+    const maxScore = Math.max(...totals);
+
+    const winners = [];
+
+    totals.forEach((score, index) => {
+
+        if (score === maxScore) {
+            winners.push(db.players[index]);
+        }
+
+    });
+
+    const winnerNames =
+        winners
+            .map(name => escapeHTML(name))
+            .join(" & ");
+
+    const leaderBox =
+        document.getElementById("leaderBox");
+
+    leaderBox.innerHTML = `
+
+        <div class="leader-card">
+
+            <div class="leader-icon">
+                🏆
+            </div>
+
+            <div class="leader-name">
+                ${winnerNames}
+            </div>
+
+            <div class="leader-meta">
+
+                🎉 GAME COMPLETED
+
+                <br><br>
+
+                Total Rounds:
+                <strong style="color:white">
+                    ${db.gameLimit}
+                </strong>
+
+                <br>
+
+                Final Score:
+                <strong style="color:white">
+                    ${formatScore(maxScore)}
+                </strong>
+
+            </div>
+
+        </div>
+
+    `;
+
+    // Disable round input fields
+    for (let i = 0; i < 4; i++) {
+
+        const call =
+            document.getElementById(`call-${i}`);
+
+        const tricks =
+            document.getElementById(`tricks-${i}`);
+
+        if (call) {
+            call.disabled = true;
+        }
+
+        if (tricks) {
+            tricks.disabled = true;
+        }
+
+    }
+
+    // Disable Save Round button
+    const buttons =
+        document.querySelectorAll(".success");
+
+    buttons.forEach(button => {
+
+        if (
+            button.textContent
+                .includes("Save Round")
+        ) {
+
+            button.disabled = true;
+
+            button.style.opacity = "0.5";
+
+            button.style.cursor = "not-allowed";
+
+        }
+
+    });
+
+}
+
+
+
 /*
 ==============================================================
                     DELETE ROUND
 ==============================================================
 */
+
 
 function deleteRound(id) {
 
@@ -1940,18 +2149,56 @@ function deleteRound(id) {
 
 function newGame() {
 
-    const confirmNew =
-        confirm(
-            "This will delete all rounds and reset players.\n\n" +
-            "Continue?"
+    const limitInput =
+        prompt(
+            "How many rounds should this game have?\n\n" +
+            "Example: 5, 10, 13",
+            "5"
         );
 
 
-    if(!confirmNew) {
+    // User pressed Cancel
+    if (limitInput === null) {
         return;
     }
 
 
+    const gameLimit =
+        Number(limitInput);
+
+
+    // Validate round limit
+    if (
+        !Number.isInteger(gameLimit) ||
+        gameLimit < 1 ||
+        gameLimit > 100
+    ) {
+
+        alert(
+            "Please enter a valid number of rounds between 1 and 100."
+        );
+
+        return;
+
+    }
+
+
+    const confirmNew =
+        confirm(
+            `Start a new Call Break game?\n\n` +
+
+            `Game Limit: ${gameLimit} rounds\n\n` +
+
+            `All previous round records will be deleted.`
+        );
+
+
+    if (!confirmNew) {
+        return;
+    }
+
+
+    // Create fresh game
     db = {
 
         players: [
@@ -1961,7 +2208,11 @@ function newGame() {
             "Player 4"
         ],
 
-        rounds: []
+        rounds: [],
+
+        gameLimit: gameLimit,
+
+        gameStarted: true
 
     };
 
@@ -1972,8 +2223,15 @@ function newGame() {
 
     render();
 
-}
+    clearForm();
 
+
+    alert(
+        `New game started successfully!\n\n` +
+        `Round Limit: ${gameLimit}`
+    );
+
+}
 
 /*
 ==============================================================
@@ -2161,16 +2419,38 @@ function render() {
     renderHistory();
 
 
+    // Current round
     document.getElementById(
         "roundNumber"
     ).textContent =
         `#${db.rounds.length + 1}`;
 
 
+    // Round counter
     document.getElementById(
         "roundCount"
     ).textContent =
-        `${db.rounds.length} Round(s)`;
+        db.gameLimit
+            ? `${db.rounds.length} / ${db.gameLimit} Round(s)`
+            : `${db.rounds.length} Round(s)`;
+
+
+    // Update Add Round heading
+    const roundNumber =
+        document.getElementById(
+            "roundNumber"
+        );
+
+
+    if (
+        db.gameLimit &&
+        db.rounds.length >= db.gameLimit
+    ) {
+
+        roundNumber.textContent =
+            "GAME COMPLETED";
+
+    }
 
 }
 
