@@ -1029,7 +1029,7 @@ footer {
         <h2>Start New Game</h2>
 
         <p id="newGameModalDesc">
-            Set how many rounds you want to play. Player names will remain preserved!
+            Set how many rounds you want to play. Previous game rounds and scores will reset, while player names are kept.
         </p>
 
         <div id="newGamePlayersPreview"
@@ -1151,7 +1151,8 @@ footer {
             Confirm Action
         </h2>
 
-        <p id="confirmModalMessage">
+        <p id="confirmModalMessage"
+           style="white-space: pre-line; line-height: 1.6;">
             Are you sure?
         </p>
 
@@ -1993,7 +1994,7 @@ function renderLeader() {
                     <button class="warning extend-action-btn" onclick="openExtendGameModal()">
                         ➕ Add Extra Rounds (Extend Game)
                     </button>
-                    <button class="secondary" onclick="openNewGameModal()">
+                    <button class="secondary" onclick="openNewGameModal(true)">
                         🎮 Start New Game
                     </button>
                 </div>
@@ -2022,7 +2023,7 @@ function renderLeader() {
                     Won by ${formatScore(diff)} point(s) in ${db.gameLimit} rounds!
                 </div>
                 <div class="leader-actions">
-                    <button class="primary" onclick="openNewGameModal()">
+                    <button class="primary" onclick="openNewGameModal(true)">
                         🎮 Start New Game
                     </button>
                     <button class="secondary" onclick="openExtendGameModal()" title="Add more rounds if you want to keep playing">
@@ -2298,29 +2299,58 @@ function deleteRound(id) {
 
 /*
 ==============================================================
-            NEW GAME MODAL FLOW (FEATURE 16)
+            NEW GAME FLOW (FEATURE 16 & GAME RESET)
 ==============================================================
 */
 
-function openNewGameModal() {
+function openNewGameModal(bypassConfirm = false) {
+    const isCompleted = Boolean(db.gameLimit && db.rounds.length >= db.gameLimit);
+    const isGameRunning = db.rounds && db.rounds.length > 0 && !isCompleted;
+
+    if (!bypassConfirm && isGameRunning) {
+        showConfirm({
+            title: "Start New Game?",
+            message: "This will clear the current game's rounds, scores and history.\n\nPlayer names will be kept.",
+            icon: "🎮",
+            okText: "Start New Game",
+            okClass: "primary",
+            onConfirm: () => {
+                showNewGameDialog();
+            }
+        });
+        return;
+    }
+
+    showNewGameDialog();
+}
+
+function showNewGameDialog() {
     const modal = document.getElementById("newGameModal");
     const limitInput = document.getElementById("gameLimitInput");
     const preview = document.getElementById("newGamePlayersPreview");
 
     if (limitInput) {
-        limitInput.value = db.gameLimit || 5;
+        limitInput.value = 5;
     }
 
     if (preview) {
         const names = getCurrentPlayerNames();
         preview.innerHTML = `
-            <strong>Preserved Players:</strong>
-            <span style="color:var(--text);">${names.map(escapeHTML).join(", ")}</span>
+            <strong style="color:var(--cyan);">Preserved Players:</strong>
+            <div style="color:var(--text); margin-top:4px; font-size:13px; font-weight:500;">
+                ${names.map(name => `<span style="display:inline-block; margin-right:10px;">👤 ${escapeHTML(name)}</span>`).join("")}
+            </div>
         `;
     }
 
     if (modal) {
         modal.style.display = "flex";
+        setTimeout(() => {
+            if (limitInput) {
+                limitInput.focus();
+                limitInput.select();
+            }
+        }, 50);
     }
 }
 
@@ -2333,7 +2363,7 @@ function closeNewGameModal() {
 
 function confirmNewGame() {
     const input = document.getElementById("gameLimitInput");
-    const gameLimit = Number(input.value);
+    const gameLimit = Number(input ? input.value : 5);
 
     if (!Number.isInteger(gameLimit) || gameLimit < 1 || gameLimit > 100) {
         showToast("Please enter a valid round limit between 1 and 100.", "error");
@@ -2341,42 +2371,44 @@ function confirmNewGame() {
         return;
     }
 
-    if (db.rounds.length > 0) {
-        showConfirm({
-            title: "Start New Game",
-            message: `Starting a new game will clear current rounds and reset scores.\n\nAll 4 player names will be safely PRESERVED.\n\nContinue?`,
-            icon: "🎮",
-            okText: "Start Game",
-            okClass: "primary",
-            onConfirm: () => {
-                startFreshGame(gameLimit);
-            }
-        });
-        return;
-    }
-
     startFreshGame(gameLimit);
 }
 
 function startFreshGame(gameLimit) {
-    // FEATURE 16: Retain current player names! Never reset to Player 1, Player 2, etc.
-    const persistentPlayers = getCurrentPlayerNames();
+    // 1. MUST PERSIST: Player names only (Feature 16)
+    const existingPlayers = getCurrentPlayerNames();
 
-    db.players = persistentPlayers;
-    db.rounds = [];
-    db.gameLimit = gameLimit;
-    db.gameStarted = true;
+    // 2. MUST RESET COMPLETELY: Brand new database object (separate player config from game state)
+    db = {
+        players: [...existingPlayers],
+        rounds: [],
+        gameLimit: gameLimit,
+        gameStarted: true
+    };
 
+    // 3. Reset temporary card suit selections back to default ♠
+    currentSuitSelections = ["♠", "♠", "♠", "♠"];
+
+    // 4. Overwrite localStorage completely with clean fresh database
     saveDB();
+
+    // 5. Keep preserved player names visible in setup inputs
     loadPlayersToUI();
+
+    // 6. Reset round entry form, score previews & suit buttons
     clearForm();
+
+    // 7. Close New Game modal
     closeNewGameModal();
+
+    // 8. Re-render the entire application from Round #1 with zero previous rounds
     render();
 
+    // 9. Feedback toast
     showToast(`New game started! (${gameLimit} rounds). Players retained.`, "success");
 }
 
-// Fallback direct new game trigger
+// Single unified trigger for new game
 function newGame() {
     openNewGameModal();
 }
@@ -2737,6 +2769,8 @@ function render() {
     if (roundCountEl) {
         if (isCompleted) {
             roundCountEl.textContent = `${db.rounds.length} / ${db.gameLimit} Rounds (Completed)`;
+        } else if (db.rounds.length === 0) {
+            roundCountEl.textContent = "0 Round(s)";
         } else {
             roundCountEl.textContent = `${db.rounds.length} / ${db.gameLimit || 5} Round(s)`;
         }
