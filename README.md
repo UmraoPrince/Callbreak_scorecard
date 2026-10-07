@@ -178,8 +178,13 @@ JavaScript
 ```text
 Call_Game/
 │
-├── CALL.HTML
-└── README.md
+├── index.html        # Frosted glass UI & layout
+├── style.css         # Frosted Glassmorphism theme & styling
+├── script.js         # Call Break business logic & game engine
+├── bg.jpg            # Theme Preset 1: Classic Casino
+├── bg_bright.jpg     # Theme Preset 2: Golden Luxury
+├── bg_neon.jpg       # Theme Preset 3: Cyberpunk Neon
+└── README.md         # Documentation
 ```
 
 ---
