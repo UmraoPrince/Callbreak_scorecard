@@ -19,47 +19,51 @@
 <div class="bg-overlay"></div>
 
 <header>
-    <div class="header-brand">
-        <h1>
-            ♠️ Call Break Scoreboard
-            <span class="brand-badge">4 Player</span>
-        </h1>
+    <div class="header-container">
+        <div class="header-top-bar">
+            <div class="header-brand">
+                <h1>
+                    ♠️ Call Break Scoreboard
+                    <span class="brand-badge">4 Player</span>
+                </h1>
 
-        <p>
-            Smart Score • Local Database • Real-Time Analysis
-        </p>
-    </div>
+                <p class="header-subtitle">
+                    Smart Score • Local Database • Real-Time Analysis
+                </p>
+            </div>
 
-    <nav class="glass-nav">
-        <a href="#playersSection" class="glass-nav-link">👥 Players</a>
-        <a href="#roundSection" class="glass-nav-link">➕ Add Round</a>
-        <a href="#scoreboardSection" class="glass-nav-link">📊 Total Score</a>
-        <a href="#analysisSection" class="glass-nav-link">📈 Analysis</a>
-        <a href="#historySection" class="glass-nav-link">📜 History</a>
-        <a href="#databaseSection" class="glass-nav-link">💾 Backup</a>
-        <a href="#rulesSection" class="glass-nav-link">🧮 Rules</a>
-    </nav>
+            <div class="header-actions">
+                <button
+                    class="primary top-new-game-btn"
+                    onclick="openNewGameModal()">
+                    🎮 New Game
+                </button>
 
-    <div class="header-actions">
-        <button
-            class="primary top-new-game-btn"
-            onclick="openNewGameModal()">
-            🎮 New Game
-        </button>
+                <button
+                    class="warning top-new-game-btn top-refresh-btn"
+                    id="refreshGameBtn"
+                    onclick="refreshGame()">
+                    🔄 Refresh Game
+                </button>
 
-        <button
-            class="warning top-new-game-btn top-refresh-btn"
-            id="refreshGameBtn"
-            onclick="refreshGame()">
-            🔄 Refresh Game
-        </button>
+                <button
+                    class="secondary top-new-game-btn top-theme-btn"
+                    id="bgThemeBtn"
+                    onclick="openBgModal()">
+                    🖼️ Background
+                </button>
+            </div>
+        </div>
 
-        <button
-            class="secondary top-new-game-btn top-theme-btn"
-            id="bgThemeBtn"
-            onclick="openBgModal()">
-            🖼️ Background
-        </button>
+        <nav class="glass-nav">
+            <a href="#playersSection" class="glass-nav-link">👥 Players</a>
+            <a href="#roundSection" class="glass-nav-link">➕ Add Round</a>
+            <a href="#scoreboardSection" class="glass-nav-link">📊 Total Score</a>
+            <a href="#analysisSection" class="glass-nav-link">📈 Analysis</a>
+            <a href="#historySection" class="glass-nav-link">📜 History</a>
+            <a href="#databaseSection" class="glass-nav-link">💾 Backup</a>
+            <a href="#rulesSection" class="glass-nav-link">🧮 Rules</a>
+        </nav>
     </div>
 </header>
 

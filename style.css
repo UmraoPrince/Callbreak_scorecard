@@ -116,114 +116,143 @@ body {
 */
 
 header {
-    text-align: center;
-    padding: 18px 16px 14px;
-    background: var(--glass-header);
-    border-bottom: 1px solid var(--border-glass);
     position: sticky;
     top: 0;
     z-index: 1000;
+    background: var(--glass-header);
+    border-bottom: 1px solid var(--border-glass);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.40);
+    padding: 10px 16px;
+    transition: all 0.25s ease;
+}
+
+.header-container {
+    width: min(1280px, 98%);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.header-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 .header-brand {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    gap: 2px;
+    text-align: left;
 }
 
 header h1 {
-    font-size: clamp(22px, 4.5vw, 34px);
+    font-size: clamp(18px, 3.2vw, 24px);
     font-weight: 800;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
     color: var(--text-pure);
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 217, 255, 0.45);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 18px rgba(0, 217, 255, 0.35);
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    margin: 0;
 }
 
 .brand-badge {
     display: inline-block;
-    padding: 2px 10px;
-    font-size: 11px;
+    padding: 2px 8px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
     color: var(--cyan);
     background: rgba(0, 217, 255, 0.12);
     border: 1px solid rgba(0, 217, 255, 0.35);
     border-radius: 999px;
-    box-shadow: 0 0 12px rgba(0, 217, 255, 0.25);
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
     vertical-align: middle;
 }
 
-header p {
-    color: #cbd5e1;
-    font-size: 13px;
-    text-shadow: var(--text-shadow);
-}
-
-/* Glass Navigation Bar */
-.glass-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-}
-
-.glass-nav-link {
-    color: #e2e8f0;
-    text-decoration: none;
+.header-subtitle {
+    color: #94a3b8;
     font-size: 12px;
-    font-weight: 600;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.glass-nav-link:hover {
-    color: #ffffff;
-    background: rgba(0, 217, 255, 0.16);
-    border-color: rgba(0, 217, 255, 0.4);
-    box-shadow: 0 0 14px rgba(0, 217, 255, 0.25);
-    transform: translateY(-1px);
+    text-shadow: var(--text-shadow);
+    margin: 0;
 }
 
 /* Header Action Buttons */
 .header-actions {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 12px;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.header-actions button {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .top-new-game-btn {
-    padding: 10px 22px;
-    font-size: 13px;
+    padding: 8px 16px;
+    font-size: 12px;
 }
 
 .top-refresh-btn {
-    padding: 10px 22px;
-    font-size: 13px;
+    padding: 8px 16px;
+    font-size: 12px;
 }
 
 .top-theme-btn {
-    padding: 10px 18px;
-    font-size: 13px;
+    padding: 8px 14px;
+    font-size: 12px;
+}
+
+/* Glass Navigation Bar - Single Smooth Horizontal Line */
+.glass-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 2px 2px 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.glass-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.glass-nav-link {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.glass-nav-link:hover {
+    color: #ffffff;
+    background: rgba(0, 217, 255, 0.18);
+    border-color: rgba(0, 217, 255, 0.45);
+    box-shadow: 0 0 12px rgba(0, 217, 255, 0.28);
+    transform: translateY(-1px);
 }
 
 /*
@@ -1232,21 +1261,25 @@ footer {
 }
 
 @media(max-width: 768px) {
+    header {
+        padding: 8px 12px;
+    }
+
+    .header-top-bar {
+        gap: 10px;
+    }
+
     header h1 {
-        font-size: 22px;
+        font-size: 19px;
+    }
+
+    .header-actions button {
+        padding: 7px 12px;
+        font-size: 11px;
     }
 
     .round-grid {
         grid-template-columns: 1fr;
-    }
-
-    .glass-nav {
-        gap: 6px;
-    }
-
-    .glass-nav-link {
-        font-size: 11px;
-        padding: 5px 10px;
     }
 
     .card {
@@ -1256,9 +1289,59 @@ footer {
 }
 
 @media(max-width: 650px) {
+    header {
+        padding: 6px 10px;
+    }
+
     .container {
         width: 95%;
-        margin: 16px auto 40px;
+        margin: 12px auto 40px;
+    }
+
+    .header-top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+    }
+
+    .header-brand {
+        text-align: center;
+        align-items: center;
+    }
+
+    header h1 {
+        font-size: 17px;
+        justify-content: center;
+    }
+
+    .header-subtitle {
+        display: none;
+    }
+
+    .header-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+    }
+
+    .header-actions button {
+        flex: 1;
+        padding: 7px 6px;
+        font-size: 11px;
+        gap: 4px;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .glass-nav {
+        gap: 5px;
+        padding: 2px 0;
+    }
+
+    .glass-nav-link {
+        font-size: 10px;
+        padding: 4px 9px;
     }
 
     .players-grid,
@@ -1276,16 +1359,6 @@ footer {
     }
 
     .button-row button {
-        width: 100%;
-    }
-
-    .header-actions {
-        width: 100%;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .header-actions button {
         width: 100%;
     }
 
