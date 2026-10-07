@@ -390,18 +390,23 @@ function createRoundForm() {
 }
 
 function selectSuit(index, suit, button) {
-    currentSuitSelections[index] = suit;
+    // Synchronize chosen card suit across all 4 players automatically
+    for (let i = 0; i < 4; i++) {
+        currentSuitSelections[i] = suit;
 
-    const suitInput = document.getElementById(`suit-${index}`);
-    if (suitInput) {
-        suitInput.value = suit;
-    }
+        const suitInput = document.getElementById(`suit-${i}`);
+        if (suitInput) {
+            suitInput.value = suit;
+        }
 
-    const buttons = document.querySelectorAll(`.suit-btn[data-player="${index}"]`);
-    buttons.forEach(btn => btn.classList.remove("selected"));
-
-    if (button) {
-        button.classList.add("selected");
+        const buttons = document.querySelectorAll(`.suit-btn[data-player="${i}"]`);
+        buttons.forEach(btn => {
+            if (btn.dataset.suit === suit) {
+                btn.classList.add("selected");
+            } else {
+                btn.classList.remove("selected");
+            }
+        });
     }
 }
 
